@@ -25,7 +25,6 @@ function measure_substratewave(
     verbos=true, 
     T=Float64
 )
-    println("Simulating a droplet on a patterned substrate")
     fout, ftemp, feq, height, velx, vely, vsq, pressure, dgrad, Fx, Fy, slipx, slipy, h∇px, h∇py = Swalbe.Sys(sys, device, false, T)
     if device == "CPU"
         for i in 1:sys.Lx, j in 1:sys.Ly
@@ -238,19 +237,32 @@ for direction in ["x" "y"] #  "diagonal"
             speeds .= v_lam2_lin
         elseif waves == 3
             speeds .= v_lam3_dia
+        elseif waves == 4
+            speeds .= v4
+        elseif waves == 5
+            speeds .= v5
+        elseif waves == 6
+            speeds .= v6
+        elseif waves == 7
+            speeds .= v7
+        elseif waves == 8
+            speeds .= v8
+        elseif waves == 9
+            speeds .= v9
         end
-        for speed in [0] # speeds # 1 2 3
+        for speed in speeds # 1 2 3 # [0] 
             pattern = "sine"
+            ang = 1/9
             println("Simulating moving substrate wettability with pattern $(pattern) and moving direction $(direction) and speed $(speed)")
-            # sys = Swalbe.SysConst(Lx=512, Ly=512, γ=0.01, δ=1.0, n=3, m=2, hmin=0.07, Tmax=5000000, tdump=5000)
-            sys = Swalbe.SysConst(Lx=512, Ly=512, γ=0.01, δ=1.0, n=3, m=2, hmin=0.07, Tmax=15000, tdump=100)
+            sys = Swalbe.SysConst(Lx=512, Ly=512, γ=0.01, δ=1.0, n=3, m=2, hmin=0.07, Tmax=5000000, tdump=5000)
+            #sys = Swalbe.SysConst(Lx=512, Ly=512, γ=0.01, δ=1.0, n=3, m=2, hmin=0.07, Tmax=75000, tdump=500)
             df_fluid = Dict()
             df_sub = Dict()
             θₚ = ones(sys.Lx,sys.Ly)
             # Substrate patterning
             if pattern == "sine" 
                 for i in 1:sys.Lx, j in 1:sys.Ly
-                    θₚ[i,j] = 1/9 + 1/18 * sin(2π*waves*(i-1)/sys.Lx) * sin(2π*waves*(j-1)/sys.Ly)
+                    θₚ[i,j] = ang + 1/18 * sin(2π*waves*(i-1)/sys.Lx) * sin(2π*waves*(j-1)/sys.Ly)
                 end
             elseif pattern == "linear"
                 θₚ = pyramidpattern(sys.Lx, sys.Ly, waves=waves)
@@ -270,7 +282,8 @@ for direction in ["x" "y"] #  "diagonal"
                 df_sub["theta_$(t*sys.tdump)"] = substrate[t,:]
             end
             println("Saving Dict subdirection $direction subvel $speed and $(pattern) $waves to disk")
-            save("data/Moving_wettability/height_direc_$(direction)_sp_$(speed)_$(pattern)_$(waves)_tmax_$(sys.Tmax)_v2.jld2", df_fluid)
+            save_ang = Int(round(rad2deg(π*ang)))
+            save("data/Moving_wettability/height_direc_$(direction)_sp_$(speed)_$(pattern)_$(waves)_$(save_ang)_tmax_$(sys.Tmax)_v2.jld2", df_fluid)
             # bson("data/Moving_wettability/theta_direc_$(direction)_sp_$(speed)_$(pattern)_$(waves)_tmax_$(sys.Tmax)_v2.bson", df_sub)
         
             CUDA.reclaim()
