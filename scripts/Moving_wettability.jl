@@ -212,15 +212,30 @@ end
 println("Moving Wettability and possible resonaces")
 v_lam1_dia = [0, 4900, 490, 49]
 v_lam2_dia = [0, 9802, 980, 98]
-v_lam3_dia = [0, 14702, 1470, 147] 
-for direction in ["diagonal"] #  "diagonal"
+v_lam3_dia = [0, 14702, 1470, 147]
+# Newer simulations 
+v4 = [19603, 1960, 196] 
+v5 = [24504, 2450, 245] 
+v6 = [29404, 2940, 294] 
+v7 = [34305, 3430, 343] 
+v8 = [39206, 3920, 392] 
+v9 = [44107, 4410, 441] 
+# To pin down the Rayleigh-Plateu instability
+v_lam2_dia_more = [490, 245, 164, 123]
+# For the linear simulations
+v_lam2_lin = [6931, 693, 69]
+for direction in ["x" "y"] #  "diagonal"
     # Different initial volumes
-    for waves in [9] # 1 2 
-        speeds = zeros(Int, 4)
+    for waves in [2]# [4,5,6,7,8,9] # 1 2 
+        n_vel = length(v_lam2_lin)
+        # speeds = zeros(Int, 4)
+        speeds = zeros(Int, n_vel)
         if waves == 1
             speeds .= v_lam1_dia
         elseif waves == 2
-            speeds .= v_lam2_dia
+            # speeds .= v_lam2_dia
+            # speeds .= v_lam2_dia_more
+            speeds .= v_lam2_lin
         elseif waves == 3
             speeds .= v_lam3_dia
         end
